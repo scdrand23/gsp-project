@@ -6,7 +6,7 @@ import datetime
 import os
 import build_grid
 
-def read_plt(plt_file):
+def read_plt(plt_file, grid):
     points = pd.read_csv(plt_file, skiprows=6, header=None,
                          parse_dates=[[5, 6]], infer_datetime_format=True)
 
@@ -17,7 +17,14 @@ def read_plt(plt_file):
     points.drop(inplace=True, columns=[2, 4])
     # mask = (points.iloc[0] & points.iloc[-1])
     # points = points[mask]
+    if len(points) < 2:
+        return
+
     points_df = points.iloc[[0, -1]]
+    df_bejing = grid.coordinates_inside_beijing(points_df)
+
+    if len(df_bejing) < 2:
+        return
    
     # print(points)
     return points_df
@@ -45,11 +52,16 @@ def apply_labels(points, labels):
     points['label'][no_label] = 0
 
 def read_user(user_folder):
+    grid = build_grid.bulid_grid_cells()
     labels = None
 
     plt_files = glob.glob(os.path.join(user_folder, 'Trajectory', '*.plt'))
-    plt_df = [read_plt(f) for f in plt_files]
-    df = pd.concat(plt_df)
+    plt_df = [read_plt(f, grid) for f in plt_files]
+
+    try:
+        df = pd.concat(plt_df)
+    except:
+        return []
 
     labels_file = os.path.join(user_folder, 'labels.txt')
     if os.path.exists(labels_file):
@@ -67,10 +79,11 @@ def read_all_users(folder):
         # if i<1:
         print('[%d/%d] processing user %s' % (i + 1, len(subfolders), sf))
         df = read_user(os.path.join(folder,sf))
-        df['user'] = int(sf)
-        grid = build_grid.bulid_grid_cells()
-        df_bejing = grid.coordinates_inside_beijing(df)
-        dfs.append(df_bejing)
+        
+        if len(df) > 0:
+            df['user'] = int(sf)
+            dfs.append(df)
+
         
     return pd.concat(dfs)
 

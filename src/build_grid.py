@@ -26,6 +26,7 @@ class bulid_grid_cells():
         Xlon[-1] = lonFinal - deltaLon/(2*m)
         for i in range(1, len(Xlat)-1):
             Xlat[i] = Xlat[i-1]+deltaLat/n
+        for i in range(1, len(Xlon)-1):
             Xlon[i] = Xlon[i-1]+deltaLon/n
         return Xlat, Xlon
 
@@ -33,3 +34,14 @@ class bulid_grid_cells():
         mask_in_beijing= (df['lon'] >= self.lonInit) & (df['lon'] <= self.lonFinal) & (df['lat'] >= self.latInit) & (df['lat'] <= self.latFinal)
         df_bejing = df[mask_in_beijing]
         return df_bejing
+
+    def find_closest_cell(self, grid, points):
+        # grid (N, 2)
+        # points (M, 2)
+
+        grid = np.expand_dims(grid, axis=1) # (N, 1, 2)
+        points = np.expand_dims(points, axis=0) # (1, M, 2)
+        dists = np.sum((grid - points)**2, axis = 2) # L2 dist (N, M)
+
+        return dists.argmin(axis = 0) #(M,)
+

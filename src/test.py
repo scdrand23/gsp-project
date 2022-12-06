@@ -3,16 +3,13 @@ import build_grid
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-# df = pd.read_pickle('geolife.pkl')
+import scipy as sp
+import scipy.sparse
+import networkx as nx
 
-# """
-# beijing bounding box
-# """
-# # print(P[:5])
-# grid = build_grid.bulid_grid_cells()
-# # lat_min, lon_min,lat_max, lon_max = grid_bb.latInit, grid_bb.lonInit, grid_bb.latFinal, grid_bb.lonFinal
-# # df_bejing = grid.coordinates_inside_beijing(df)
-# # df_bejing.to_pickle('beijing_geolife.pkl')
-# df_beijing = pd.read_pickle('beijing_geolife.pkl')
-# print(len(df_beijing)/(len(df)))
-df = data_preprocess.read_all_users('..\\Data')
+
+a = [[1, 2], [2, 2]]
+a_arr = sp.sparse.csr_matrix(a)
+G = nx.from_scipy_sparse_matrix(a_arr, parallel_edges=True, create_using=nx.MultiGraph)
+nx.draw(G)
+plt.show()
